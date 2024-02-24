@@ -8,5 +8,5 @@ public:
     virtual void clear() noexcept;
 
     virtual void insert(const T& value);
-    virtual void erase(const T& value);
+    virtual size_t erase(const T& value);
 };
