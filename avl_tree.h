@@ -1,21 +1,35 @@
 #pragma once
 
-#include "container_interface.h"
-#include "node.h"
+#include <vector>
+#include <queue>
 #include "iterator.h"
+#include "Node/helpers.h"
+#include "Node/include/Node.h"
 
 template<typename T>
-class AVLTree : public IContainer<T> {
+class AVLTree {
 public:
     typedef avl_tree_iterator<T> iterator;
     typedef const iterator const_iterator;
 
+    /* Iterator */
+    iterator begin() { return iterator(m_root); }
+
+    iterator end() { return iterator(nullptr); }
+
+    const iterator cbegin() const { return const_iterator(m_root); }
+
+    const iterator cend() const { return const_iterator(nullptr); }
+
+
+    /*----------*/
+
     [[nodiscard]] bool empty() const {
-        return false;
+        return m_root == nullptr;
     }
 
     [[nodiscard]] size_t size() const {
-        return 2;
+        return m_size;
     }
 
     void clear() noexcept {
@@ -23,32 +37,24 @@ public:
     }
 
     void insert(const T &value) {
-        m_root = Node<T>::insert(m_root, nullptr, value);
-    }
-
-    template<class... Args>
-    iterator emplace(Args &&... args) {
-        insert(T(std::forward<Args>(args)...));
-        return nullptr;
+        m_root = node_insert(m_root, static_cast<Node<T>*>(nullptr), value);
+        m_size++;
     }
 
     iterator erase(iterator first, iterator last) { return nullptr; }
 
     size_t erase(const T &value) {
-        return 1;
+        m_root = remove(m_root, value);
+        m_size--;
+        return m_size;
     }
 
-    iterator find(const T &key) { return nullptr; }
-
-    iterator begin() { return iterator(m_root); }
-
-    iterator end() { return iterator(nullptr); }
-
-    Node<T>* get_root() {
-        return m_root;
+    iterator find(const T &key) {
+        auto temp = breadth_first_search(m_root, key);
+        return iterator(temp);
     }
-
 
 private:
+    size_t m_size;
     Node<T>* m_root = nullptr;
 };

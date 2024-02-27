@@ -1,7 +1,7 @@
 #pragma once
 
-#include "node.h"
 #include <stack>
+#include "Node/include/Node.h"
 
 template<typename T>
 struct avl_tree_iterator {
@@ -48,5 +48,6 @@ struct avl_tree_iterator {
     }
 
 private:
-    std::stack<Node<T>*> m_stack;
+    std::stack<Node<T>*>
+            m_stack;
 };
