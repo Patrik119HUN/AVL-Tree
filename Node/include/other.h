@@ -5,20 +5,42 @@
 #include "height.h"
 #include "balance.h"
 
+
+template<typename T>
+void updateBalance(Node<T>* node) {
+    std::optional<int> left_balance = Node<T>::get_balance_factor(node->left);
+    std::optional<int> right_balance = Node<T>::get_balance_factor(node->right);
+    if (right_balance.has_value() && left_balance.has_value()) {
+        node->balance_factor = left_balance.value() - right_balance.value();
+        return;
+    }
+    if (right_balance.has_value() && !left_balance.has_value()) {
+        node->balance_factor = -1 - std::abs(right_balance.value());
+        return;
+    }
+    if (!right_balance.has_value() && left_balance.has_value()) {
+        node->balance_factor = 1 + std::abs(left_balance.value());
+        return;
+    }
+    node->balance_factor = 0;
+}
+
 template<typename T>
 Node<T>* node_insert(Node<T>* p_node, Node<T>* p_parent, const T &value) {
     if (p_node == nullptr) return new Node<T>(p_parent, value);
     if (value == p_node->value) return p_node;
 
+
     if (value < p_node->value) {
         p_node->left = node_insert(p_node->left, p_node, value);
-        p_node = balance_node(p_node, value);
+        p_node->balance_factor++;
+        //p_node = balance_node(p_node, value);
     } else {
         p_node->right = node_insert(p_node->right, p_node, value);
-        p_node = balance_node(p_node, value);
+        p_node->balance_factor++;
+        //p_node = balance_node(p_node, value);
     }
-    p_node->height = std::max(get_height(p_node->left),
-                              get_height(p_node->right)) + 1;
+    //p_node->height = std::max(get_height(p_node->left),get_height(p_node->right)) + 1;
 
     return p_node;
 }

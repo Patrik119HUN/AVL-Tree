@@ -1,42 +1,40 @@
 #pragma once
 
 #include "Node.h"
+#include "other.h"
 
 template<typename T>
-Node<T>* left_rotate(Node<T>* x) {
-    Node<T>* y = x->right;
-    Node<T>* T2 = y->left;
+Node<T>* left_rotate(Node<T>*&x) {
+    auto y = x->right;
+    auto x_parent = x->parent;
 
+    x->right = y->left;
     y->left = x;
-    x->right = T2;
 
-    x->height = std::max(get_height(x->left),
-                         get_height(x->right)) +
-                1;
-    y->height = std::max(get_height(y->left),
-                         get_height(y->right)) +
-                1;
+    x->parent = y;
+    y->parent = x_parent;
+
+    updateBalance(x);
+    updateBalance(y);
 
     return y;
 
 }
 
 template<typename T>
-Node<T>* right_rotate(Node<T>* y) {
-    Node<T>* x = y->left;
-    Node<T>* T2 = x->right;
+Node<T>* right_rotate(Node<T>*&p_node) {
+    auto temp = p_node->left;
+    auto node_parent = p_node->parent;
 
-    x->right = y;
-    y->left = T2;
+    p_node->left = temp->right;
+    temp->right = p_node;
 
-    y->height = std::max(get_height(y->left),
-                         get_height(y->right)) +
-                1;
-    x->height = std::max(get_height(x->left),
-                         get_height(x->right)) +
-                1;
+    p_node->parent = temp;
+    temp->parent = node_parent;
 
-    return x;
+    updateBalance(p_node);
+    updateBalance(temp);
+    return temp;
 
 }
 

@@ -2,14 +2,14 @@
 
 #include "Node.h"
 #include "../include/rotations.h"
-
+/*
 template<typename T>
 int get_balance_factor(Node<T>* p_node) {
     if (p_node == nullptr) return 0;
     int left = get_height(p_node->left);
     int right = get_height(p_node->right);
     return left - right;
-}
+}*/
 
 template<typename T>
 Node<T>* balance_right(Node<T>* p_node, const T &value) {
