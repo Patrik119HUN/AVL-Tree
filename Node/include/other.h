@@ -7,22 +7,13 @@
 
 
 template<typename T>
-void updateBalance(Node<T>* node) {
+inline void update_balance(Node<T>* node) {
     std::optional<int> left_balance = Node<T>::get_balance_factor(node->left);
     std::optional<int> right_balance = Node<T>::get_balance_factor(node->right);
-    if (right_balance.has_value() && left_balance.has_value()) {
-        node->balance_factor = left_balance.value() - right_balance.value();
-        return;
-    }
-    if (right_balance.has_value() && !left_balance.has_value()) {
-        node->balance_factor = -1 - std::abs(right_balance.value());
-        return;
-    }
-    if (!right_balance.has_value() && left_balance.has_value()) {
-        node->balance_factor = 1 + std::abs(left_balance.value());
-        return;
-    }
-    node->balance_factor = 0;
+
+    node->balance_factor =
+            ((left_balance) ? std::abs(*left_balance) : -1) +
+            ((right_balance) ? -std::abs(*right_balance) : +1);
 }
 
 template<typename T>

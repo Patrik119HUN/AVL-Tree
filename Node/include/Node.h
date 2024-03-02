@@ -9,14 +9,15 @@ public:
     Node(Node<T>* p_parent, const T &t_value) : value(t_value), parent(p_parent) {}
 
     T value;
-    Node* parent{nullptr};
+
     int balance_factor{0};
-    uint8_t height{1};
+
+    Node* parent{nullptr};
     Node* left{nullptr};
     Node* right{nullptr};
 
     static std::optional<int> get_balance_factor(Node<T>* node) {
-        if (node == nullptr) return {};
+        if (node == nullptr) return std::nullopt;
         return node->balance_factor;
     }
 

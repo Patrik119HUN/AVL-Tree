@@ -44,59 +44,56 @@ public:
         }
         auto insertion_start = std::chrono::steady_clock::now();
         Node<T>* current_node = m_root;
-        Node<T>* parent_node = m_root;
         while (true) {
             if (value < current_node->value) {
                 if (current_node->left == nullptr) {
                     current_node->left = new Node<T>(current_node, value);
+                    current_node = current_node->left;
                     break;
                 } else {
-                    parent_node = current_node;
                     current_node = current_node->left;
                 }
             } else {
                 if (current_node->right == nullptr) {
                     current_node->right = new Node<T>(current_node, value);
+                    current_node = current_node->right;
                     break;
                 } else {
-                    parent_node = current_node;
                     current_node = current_node->right;
                 }
             }
+            insert_iterations++;
         }
         auto insertion_end = std::chrono::steady_clock::now();
         insertion_time += insertion_end - insertion_start;
         auto balance_start = std::chrono::steady_clock::now();
 
-        Node<T>* nodeToUpadte = current_node;
-        while (nodeToUpadte != nullptr) {
-            updateBalance(nodeToUpadte);
-            switch (balance_task(nodeToUpadte)) {
-                case rotations::LEFT:
-                    nodeToUpadte = left_rotate(nodeToUpadte);
-                    m_root = nodeToUpadte;
-                    break;
-                case rotations::RIGHT:
-                    nodeToUpadte = right_rotate(nodeToUpadte);
-                    m_root = nodeToUpadte;
-                    break;
-                case rotations::LEFT_RIGHT:
-                    nodeToUpadte = left_right_rotate(nodeToUpadte);
-                    m_root = nodeToUpadte;
-                    break;
-                case rotations::RIGHT_LEFT:
-                    nodeToUpadte = right_left_rotate(nodeToUpadte);
-                    m_root = nodeToUpadte;
-                    break;
-                case rotations::NONE:
-                    break;
+        Node<T>* node_to_update = current_node;
+        while (node_to_update != nullptr) {
+            auto parent_node = node_to_update->parent;
+            if (parent_node == nullptr) break;
+            (node_to_update == parent_node->left) ? parent_node->balance_factor-- : parent_node->balance_factor++;
+            if (parent_node->balance_factor == 0) break;
+            if (parent_node->balance_factor == -2) {
+                auto n_left = Node<T>::get_balance_factor(parent_node->left);
+                parent_node = (n_left.has_value() && *n_left == 1) ? left_right_rotate(parent_node) : right_rotate(parent_node);
+                (parent_node->parent == nullptr) ? m_root = parent_node : parent_node->parent->left = parent_node;
+                rotations++;
+                break;
             }
-            nodeToUpadte = nodeToUpadte->parent;
+            if (parent_node->balance_factor == 2) {
+                auto n_right = Node<T>::get_balance_factor(parent_node->right);
+                parent_node = (n_right.has_value() && *n_right == -1) ? right_left_rotate(parent_node) : left_rotate(parent_node);
+                (parent_node->parent == nullptr) ? m_root = parent_node : parent_node->parent->right = parent_node;
+                rotations++;
+                break;
+            }
+            node_to_update = parent_node;
+            balance_iterations++;
         }
 
         auto balance_end = std::chrono::steady_clock::now();
         balance_time += balance_end - balance_start;
-        //m_root = rebalance(m_root);
         m_size++;
     }
 
@@ -115,25 +112,10 @@ public:
 
     std::chrono::duration<double, std::milli> insertion_time{0};
     std::chrono::duration<double, std::milli> balance_time{0};
-private:
-    enum class rotations {
-        NONE, LEFT, RIGHT, LEFT_RIGHT, RIGHT_LEFT
-    };
-
-    rotations balance_task(Node<T>* p_node) {
-        if (p_node->balance_factor == 2) {
-            auto n_left = Node<T>::get_balance_factor(p_node->left);
-            if (n_left.has_value() && *n_left == -1)return rotations::LEFT_RIGHT;
-            return rotations::RIGHT;
-        }
-        if (p_node->balance_factor == -2) {
-            auto n_right = Node<T>::get_balance_factor(p_node->right);
-            if (n_right.has_value() && *n_right == 1)return rotations::RIGHT_LEFT;
-            return rotations::LEFT;
-        }
-        return rotations::NONE;
-    }
-
-    size_t m_size = 0;
+    int insert_iterations = 0;
+    int balance_iterations = 0;
+    int rotations = 0;
     Node<T>* m_root = nullptr;
+private:
+    size_t m_size = 0;
 };
